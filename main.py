@@ -6,7 +6,7 @@ import queries
 
 
 app=FastAPI()
-url="http://dummy.npc203.ml:9021/graphql"
+url="http://20.62.141.224:9021/graphql"
 
 
 @app.post('/students/login')
