@@ -11,6 +11,7 @@ url="https://hpe-tablebuddy-backend.herokuapp.com/"
 
 @app.post('/students/login')
 def studentLogin():
+    print("api called")
     r = requests.post(url, json={'query': queries.getStudentQuery()})
     print(r.status_code)
     print(r.text)
