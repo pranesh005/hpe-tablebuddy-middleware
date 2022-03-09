@@ -6,7 +6,7 @@ import queries
 
 
 app=FastAPI()
-url="https://hpe-middleware-interface/graphql"
+url="https://hpe-tablebuddy-backend.herokuapp.com/"
 
 
 @app.post('/students/login')
