@@ -6,16 +6,17 @@ import queries
 
 
 app=FastAPI()
-url="https://hpe-tablebuddy-backend.herokuapp.com/"
+url="http://127.0.0.1:5000/graphql"
 
 
 @app.post('/students/login')
 def studentLogin():
     print("api called")
-    r = requests.post(url, json={'query': queries.getStudentQuery()})
+    print("query is "+queries.getStudentQuery(1))
+    r = requests.post(url, json={'query': queries.getStudentQuery(1)})
     print(r.status_code)
     print(r.text)
-    pass
+    return r.text
 
 @app.post('/teachers/login')
 def teacherLogin():

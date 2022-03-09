@@ -1,6 +1,6 @@
 def getStudentQuery(id:int):
     studentLoginQuery="""query AllStudents {
-        getStudent(id:{id}) {
+        getStudent(id:"""+str(id)+""") {
             errors
             student {
                 id
