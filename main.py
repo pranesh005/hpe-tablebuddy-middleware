@@ -6,7 +6,7 @@ import queries
 
 
 app=FastAPI()
-url="http://127.0.0.1:5000/graphql"
+url="http://hpe-tablebuddy-backend.herokuapp.com/graphql"
 
 
 @app.post('/students/login')
