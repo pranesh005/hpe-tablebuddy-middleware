@@ -1,0 +1,8 @@
+[Unit]
+Description=Daemon for running the backend service in the background
+
+[Service]
+User=root
+WorkingDirectory= ~
+ExecStart=python ~/hpe-tablebuddy-middleware/main.py
+Restart=always

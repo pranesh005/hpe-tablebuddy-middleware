@@ -1,6 +1,7 @@
-def getStudentQuery(id:int):
+import models
+def getStudentQuery(email:str,password:str):
     studentLoginQuery="""query AllStudents {
-        getStudent(id:"""+str(id)+""") {
+        getStudent(email:"""+email+""",password:"""+password+""") {
             errors
             student {
                 id
@@ -13,3 +14,9 @@ def getStudentQuery(id:int):
     }"""
 
     return studentLoginQuery
+
+def getAddStudentQuery(student:models.Student):
+    addStudentQuery="""mutation {
+        addStudent(id:"""+str(student.id)+""",name:\""""+student.name+"""\",email:\""""+student.email+"""\",section_id:"""+str(student.section_id)+""",password:\""""+student.password+"""\") 
+    }"""
+    return addStudentQuery
