@@ -54,17 +54,11 @@ def addStudent(request:models.Student):
     print(r.status_code)
     json_data = json.loads(r.text)
     print(json_data)
-    results = json_data["data"]["addStudent"]['message']
-    errors = json_data["data"]["addStudent"]['errors']
-    body = {}
+    results = json_data["data"]["addStudent"]
     statusCode = 200
-    if results:
-        body["message"] = results
-      
-    else:
-        body["message"] = errors
+    if not results["message"] :
         statusCode = 404
-    return JSONResponse(content=jsonable_encoder(body), status_code=statusCode)
+    return JSONResponse(content=jsonable_encoder(results), status_code=statusCode)
 
 @app.post("/admin/bulkAddTeachers")
 def bulkAddTeachers():
@@ -86,10 +80,27 @@ def editStudent():
     pass
 
 
-@app.get("/students/timetable/{class_id}")
-def getStudentTimetable(class_id: int):
+@app.get("/students/timetable/{std}/{section}")
+def getStudentTimetable(std: str,section:str):
+    r = requests.post(url, json={"query": queries.getStudentQuery(std, section)})
+    print(r.status_code)
+    json_data = json.loads(r.text)
+    print(json_data)
+    results = json_data["data"]["getStudent"]["student"]
+    errors = json_data["data"]["getStudent"]["errors"]
+    body = {}
+    statusCode = 200
+    if results:
+        body["message"] = "Login Successfull"
+        body["user"] = results
+    else:
+        body["message"] = "Invalid credentials"
+        body["error"] = errors
+        statusCode = 404
+    return JSONResponse(content=jsonable_encoder(body), status_code=statusCode)
+
     # calling graphana api
-    pass
+
 
 
 @app.get("/teachers/timetable/{id}")
@@ -99,5 +110,29 @@ def getTeacherTimetable(id: int):
 
 
 @app.post("/timetable")
-def createTimeTable():
-    pass
+def createTimeTable(request:models.TimeTable):
+    objects=[]
+    for row in request.timetable:
+        ob={
+            "std":row.std,
+            "section":row.section,
+            "day":row.day,
+            "period_1":row.period_1,
+            "period_2":row.period_2,
+            "period_3":row.period_3,
+            "period_4":row.period_4,
+            "period_5":row.period_5,
+            "period_6":row.period_6
+        }
+        objects.append(ob)
+
+    r = requests.post(url, json={"query": queries.getAddTimetableQuery(objects)})
+    print(r.status_code)
+    json_data = json.loads(r.text)
+    print(json_data)
+    results = json_data["data"]["addTimeTable"]
+    statusCode = 200
+    if not results["message"] :
+        statusCode = 404
+    return JSONResponse(content=jsonable_encoder(results), status_code=statusCode)
+    
