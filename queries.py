@@ -1,4 +1,6 @@
 import models
+
+
 def getStudentQuery(email:str,password:str):
     studentLoginQuery="""query AllStudents {
         getStudent(email:\""""+email+"""\",password:\""""+password+"""\") {

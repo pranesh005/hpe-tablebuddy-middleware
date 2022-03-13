@@ -1,4 +1,5 @@
 import requests
+
 import queries
 
 url="http://20.62.141.224:9021/graphql"

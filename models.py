@@ -1,7 +1,8 @@
-from typing import Optional
-from typing import List
+from typing import List, Optional
 from xmlrpc.client import Boolean
+
 from pydantic import BaseModel
+
 
 class Student(BaseModel):
     id:Optional[int]
