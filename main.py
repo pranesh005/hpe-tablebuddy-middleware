@@ -10,7 +10,7 @@ import models
 
 
 app = FastAPI()
-url = "http://backend.npc203.ml/graphql"
+url = "http://20.62.141.224:8080/graphql"
 
 
 @app.post("/admin/addStudent",response_model=models.CommonResponse)
