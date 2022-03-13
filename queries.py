@@ -1,13 +1,14 @@
 import models
 def getStudentQuery(email:str,password:str):
     studentLoginQuery="""query AllStudents {
-        getStudent(email:"""+email+""",password:"""+password+""") {
+        getStudent(email:\""""+email+"""\",password:\""""+password+"""\") {
             errors
             student {
                 id
                 name
                 email
-                section_id
+                section
+                std
                 password
             }
         }
@@ -15,26 +16,19 @@ def getStudentQuery(email:str,password:str):
 
     return studentLoginQuery
 
-def getAddStudentQuery(student:models.Student):
+def addStudentQuery(student:models.Student):
     addStudentQuery="""mutation {
-        addStudent(name:\""""+student.name+"""\",email:\""""+student.email+"""\",section_id:"""+str(student.section_id)+""",password:\""""+student.password+"""\") {message errors}
+        addStudent(name:\""""+student.name+"""\",email:\""""+student.email+"""\",section:\""""+str(student.section)+"""\",std:\""""+str(student.std)+"""\",password:\""""+student.password+"""\") {message errors}
     }"""
     return addStudentQuery
-# def getAddTimetableQuery(timetable:models.TimeTable):
-#     addTimeTableQuery="""mutation {
-#         addTimeTable(std:\""""+timetable.std+"""\",section:\""""+timetable.section+"""\",day:\""""+str(timetable.day)+"""\",period_1:\""""+str(timetable.period_1)+"""\",period_2:\""""+str(timetable.period_2)+"""\",period_3:\""""+str(timetable.period_3)+"""\",period_4:\""""+str(timetable.period_4)+"""\",period_5:\""""+str(timetable.period_5)+"""\",period_6:\""""+timetable.period_6+"""\") {message errors}
-#     }"""
-#     return addTimeTableQuery
-
-def getAddTimetableQuery(timetable:models.TimeTable):
-    print(timetable)
+def createTimeTableQuery(timetable:models.Day):
     addTimeTableQuery="""mutation {
-        addTimeTable(\"objects\":"""+timetable+""") {message errors}
+        createTimeTable(std:\""""+timetable["std"]+"""\",section:\""""+timetable["section"]+"""\",day:\""""+str(timetable["day"])+"""\",p_one:\""""+str(timetable["p_one"])+"""\",p_two:\""""+str(timetable["p_two"])+"""\",p_three:\""""+str(timetable["p_three"])+"""\",p_four:\""""+str(timetable["p_four"])+"""\",p_five:\""""+str(timetable["p_five"])+"""\",p_six:\""""+timetable["p_six"]+"""\") {message errors}
     }"""
     return addTimeTableQuery
 
 def getTimeTableQuery(std:str,section:str):
-    getTimeTable = """query AllStudents {
+    getTimeTable = """query TimeTable {
         getTimeTable(std:"""+std+""",section:"""+section+""") {
             errors
             timetable {
@@ -42,13 +36,21 @@ def getTimeTableQuery(std:str,section:str):
                 std
                 section
                 day
-                period_1
-                period_2
-                period_3
-                period_4
-                period_5
-                period_6
+                p_one
+                p_two
+                p_three
+                p_four
+                p_five
+                p_six
             }
         }
     }"""
     return getTimeTable
+
+def deleteTimeTableQuery():
+    return """mutation TimeTable {
+        deleteTimeTable {
+      			success
+            message 
+        }
+    }"""

@@ -13,8 +13,27 @@ app = FastAPI()
 url = "http://backend.npc203.ml/graphql"
 
 
-@app.post("/students/login")
-def studentLogin(request:models.Student):
+@app.post("/admin/addStudent",response_model=models.CommonResponse)
+def addStudent(request:models.Student):
+    r = requests.post(url, json={"query": queries.addStudentQuery(request)})
+    print(r.status_code)
+    json_data = json.loads(r.text)
+    print(json_data)
+    results = json_data["data"]["addStudent"]
+    statusCode = 200
+    body={}
+    if not results["message"] :
+        statusCode = 404
+        body["success"]=False
+        body["error"]=results["errors"][0]
+    else:
+         body["success"]=True
+         body["message"]=results["message"]
+    return JSONResponse(content=jsonable_encoder(body), status_code=statusCode)
+
+
+@app.post("/students/login",response_model=models.LoginResponse)
+def studentLogin(request:models.LoginRequest):
     r = requests.post(url, json={"query": queries.getStudentQuery(request.email, request.password)})
     print(r.status_code)
     json_data = json.loads(r.text)
@@ -24,115 +43,122 @@ def studentLogin(request:models.Student):
     body = {}
     statusCode = 200
     if results:
+        body["success"]=True
         body["message"] = "Login Successfull"
         body["user"] = results
     else:
-        body["message"] = "Invalid credentials"
-        body["error"] = errors
+        body["success"]=False
+        body["error"] = errors[0]
         statusCode = 404
     return JSONResponse(content=jsonable_encoder(body), status_code=statusCode)
 
-
-@app.post("/teachers/login")
-def teacherLogin():
-    pass
-
-@app.post("/admin/login")
-def adminLogin():
-    pass
-
-
-@app.post("/admin/addTeacher")
-def addTeacher():
-    pass
-
-
-@app.post("/admin/addStudent")
-def addStudent(request:models.Student):
-    print(queries.getAddStudentQuery(request))
-    r = requests.post(url, json={"query": queries.getAddStudentQuery(request)})
-    print(r.status_code)
-    json_data = json.loads(r.text)
-    print(json_data)
-    results = json_data["data"]["addStudent"]
-    statusCode = 200
-    if not results["message"] :
-        statusCode = 404
-    return JSONResponse(content=jsonable_encoder(results), status_code=statusCode)
-
-@app.post("/admin/bulkAddTeachers")
-def bulkAddTeachers():
-    pass
-
-
-@app.post("/admin/bulkAddStudents")
-def bulkAddStudents():
-    pass
-
-
-@app.post("/admin/editTeacher")
-def editTeacher():
-    pass
-
-
-@app.post("/admin/editStudent")
-def editStudent():
-    pass
-
-
-@app.get("/students/timetable/{std}/{section}")
+@app.get("/students/timetable/{std}/{section}",response_model=models.getTimeTableResponse)
 def getStudentTimetable(std: str,section:str):
-    r = requests.post(url, json={"query": queries.getStudentQuery(std, section)})
+    r = requests.post(url, json={"query": queries.getTimeTableQuery(std, section)})
     print(r.status_code)
     json_data = json.loads(r.text)
     print(json_data)
-    results = json_data["data"]["getStudent"]["student"]
-    errors = json_data["data"]["getStudent"]["errors"]
+    results = json_data["data"]["getTimeTable"]["timetable"]
+    errors = json_data["data"]["getTimeTable"]["errors"]
     body = {}
     statusCode = 200
     if results:
-        body["message"] = "Login Successfull"
-        body["user"] = results
+        body["timetable"] = results
+        body["success"]=True
     else:
-        body["message"] = "Invalid credentials"
-        body["error"] = errors
+        body["success"]=False
+        body["error"] = errors[0]
         statusCode = 404
     return JSONResponse(content=jsonable_encoder(body), status_code=statusCode)
 
-    # calling graphana api
 
-
-
-@app.get("/teachers/timetable/{id}")
-def getTeacherTimetable(id: int):
-    # calling graphana api
-    pass
-
-
-@app.post("/timetable")
+@app.post("/timetable",response_model=models.CommonResponse)
 def createTimeTable(request:models.TimeTable):
-    objects=[]
+    success=True
     for row in request.timetable:
         ob={
             "std":row.std,
             "section":row.section,
             "day":row.day,
-            "period_1":row.period_1,
-            "period_2":row.period_2,
-            "period_3":row.period_3,
-            "period_4":row.period_4,
-            "period_5":row.period_5,
-            "period_6":row.period_6
+            "p_one":row.p_one,
+            "p_two":row.p_two,
+            "p_three":row.p_three,
+            "p_four":row.p_four,
+            "p_five":row.p_five,
+            "p_six":row.p_six
         }
-        objects.append(ob)
 
-    r = requests.post(url, json={"query": queries.getAddTimetableQuery(objects)})
+        r = requests.post(url, json={"query": queries.createTimeTableQuery(ob)})
+        json_data = json.loads(r.text)
+        results = json_data["data"]["createTimeTable"]
+        if not results["message"] :
+            body={"success":False,"error":results["errors"][0]}
+            success=False
+            return JSONResponse(content=jsonable_encoder(body), status_code=404)
+
+    if success:
+        body={"success":True,"message":results["message"]}
+        return JSONResponse(content=jsonable_encoder(body), status_code=200)
+    
+
+@app.delete("/timetable/delete")
+def deleteTimeTable():
+    r = requests.post(url, json={"query": queries.deleteTimeTableQuery()})
     print(r.status_code)
     json_data = json.loads(r.text)
     print(json_data)
-    results = json_data["data"]["addTimeTable"]
+    results = json_data["data"]["deleteTimeTable"]
     statusCode = 200
+    body={}
     if not results["message"] :
+        body["success"]=False
+        body["error"]=results["errors"][0]
         statusCode = 404
-    return JSONResponse(content=jsonable_encoder(results), status_code=statusCode)
-    
+    else:
+        body["success"]=True
+        body["message"]=results["message"]
+
+    return JSONResponse(content=jsonable_encoder(body), status_code=statusCode)
+
+
+# @app.post("/teachers/login")
+# def teacherLogin():
+#     pass
+
+# @app.post("/admin/login")
+# def adminLogin():
+#     pass
+
+
+# @app.post("/admin/addTeacher")
+# def addTeacher():
+#     pass
+
+
+# @app.post("/admin/bulkAddTeachers")
+# def bulkAddTeachers():
+#     pass
+
+
+# @app.post("/admin/bulkAddStudents")
+# def bulkAddStudents():
+#     pass
+
+
+# @app.post("/admin/editTeacher")
+# def editTeacher():
+#     pass
+
+
+# @app.post("/admin/editStudent")
+# def editStudent():
+#     pass
+
+
+
+# @app.get("/teachers/timetable/{id}")
+# def getTeacherTimetable(id: int):
+#     # calling graphana api
+#     pass
+
+
