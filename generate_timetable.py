@@ -1,18 +1,34 @@
 import random
 import threading
 
-subs = ["maths", "social", "science", "language", "english"]
-extra = ["art", "PT", "music"]
+lower_std_subs = ["maths", "social", "science", "language", "english"]
+lower_std_extra = ["art", "PT", "music"]
+higher_std_subs = [
+    "English",
+    "Language",
+    "Maths",
+    "Physics",
+    "Chemistry",
+    "Biology",
+    "History",
+    "Civics",
+    "Geography",
+]
+higher_std_extra = ["PT"]
 main_lock = threading.Lock()
 
 
-def generate():
+def generate(prev_gen=None, ishighschool=False):
+    subs = higher_std_subs if ishighschool else lower_std_subs
+    extra = higher_std_extra if ishighschool else lower_std_extra
     timetable = [["" for i in range(6)] for j in range(5)]
     for i in range(5):
         dup = [0] * 6
         for j in range(6):
             while True:
                 sub = random.choice(subs + extra)
+                if prev_gen and prev_gen[i][j] == sub:
+                    break
                 if sub in subs:
                     sub_ind = subs.index(sub)
                     if not (any(ele >= 2 for ele in dup) and dup[sub_ind] >= 1):
@@ -30,28 +46,5 @@ def generate():
     return timetable
 
 
-def stress_test():
-    def check(t):
-        for row in t:
-            if len(set(row)) <= len(row) - 2:
-                raise RuntimeError
-        print("done")
-
-    i = 0
-    while True:
-        if i % 100000 == 0:
-            print(i)
-
-        gen = generate()
-        c = 0
-        for row in gen:
-            if any(ex in row for ex in extra):
-                c += 1
-        if c < 2:
-            print("count:", c, "iteration:", i)
-            print(*gen, sep="\n")
-            print("-" * 20)
-        if c == 0:
-            print(i)
-            break
-        i += 1
+if __name__ == "__main__":
+    print(*generate(), sep="\n")
