@@ -3,13 +3,14 @@ from io import BytesIO
 from lib2to3.pgen2.pgen import DFAState
 from urllib import response
 
+import aiohttp
 import pandas
 import requests
+import roman
 from fastapi import FastAPI, File
 from fastapi.encoders import jsonable_encoder
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
-import roman
 
 import models
 import queries
@@ -19,7 +20,7 @@ days_from_id = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
 
 app = FastAPI()
 base_url = "http://localhost:8000"
-url = "http://20.62.141.224:8080/graphql"
+url = "http://localhost:5000/graphql"
 
 
 @app.post("/admin/addStudent", response_model=models.CommonResponse)
@@ -134,14 +135,19 @@ def deleteTimeTable():
 
 
 @app.post("/admin/upload_csv")
-def load_csv(file: bytes = File(...)):
-    df = pandas.read_csv(BytesIO(file))
+async def load_csv(request: Request):
+    d = await request.json()
+
+    df = pandas.DataFrame.from_dict(json.loads(d))
+    post_data = {}
     for index, row in df.iterrows():
-        post_data = {}
         for col in df.columns:
             post_data[col] = row[col]
         try:
-            requests.post(base_url + "/admin/addStudent", json=post_data)
+            async with aiohttp.request(
+                "POST", base_url + "/admin/addStudent", json=post_data
+            ) as resp:
+                pass
         except Exception as e:
             return JSONResponse(
                 content=jsonable_encoder({"success": False, "error": str(e)}), status_code=404
@@ -185,8 +191,9 @@ def generate_timetable():
                 )
         return JSONResponse(content=jsonable_encoder({"success": True}), status_code=200)
 
-@app.get("/teachers/timetable/{std}/{subject}",response_model=models.getTeacherTimeTableResponse)
-def getTeacherTimetable(std: str,subject:str):
+
+@app.get("/teachers/timetable/{std}/{subject}", response_model=models.getTeacherTimeTableResponse)
+def getTeacherTimetable(std: str, subject: str):
     # calling graphana api
     r = requests.post(url, json={"query": queries.getTeacherTimeTableQuery(std, subject)})
     print(r.status_code)
@@ -238,6 +245,3 @@ def getTeacherTimetable(std: str,subject:str):
 # @app.post("/admin/editStudent")
 # def editStudent():
 #     pass
-
-
-
