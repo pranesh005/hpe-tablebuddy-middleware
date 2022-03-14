@@ -46,5 +46,10 @@ class getTimeTableResponse(BaseModel):
     timetable:List[Day]
     success:bool
     error:str
+
+class getTeacherTimeTableResponse(BaseModel):
+    timetable: List[List[str]]
+    success:bool
+    error:str
                 
                 

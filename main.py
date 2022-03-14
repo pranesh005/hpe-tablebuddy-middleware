@@ -185,6 +185,26 @@ def generate_timetable():
                 )
         return JSONResponse(content=jsonable_encoder({"success": True}), status_code=200)
 
+@app.get("/teachers/timetable/{std}/{subject}",response_model=models.getTeacherTimeTableResponse)
+def getTeacherTimetable(std: str,subject:str):
+    # calling graphana api
+    r = requests.post(url, json={"query": queries.getTeacherTimeTableQuery(std, subject)})
+    print(r.status_code)
+    json_data = json.loads(r.text)
+    print(json_data)
+    results = json_data["data"]["getTeacherTimeTable"]["timetable"]
+    errors = json_data["data"]["getTeacherTimeTable"]["errors"]
+    body = {}
+    statusCode = 200
+    if results:
+        body["timetable"] = results
+        body["success"] = True
+    else:
+        body["success"] = False
+        body["error"] = errors[0]
+        statusCode = 404
+    return JSONResponse(content=jsonable_encoder(body), status_code=statusCode)
+
 
 # @app.post("/teachers/login")
 # def teacherLogin():
@@ -220,7 +240,4 @@ def generate_timetable():
 #     pass
 
 
-# @app.get("/teachers/timetable/{id}")
-# def getTeacherTimetable(id: int):
-#     # calling graphana api
-#     pass
+

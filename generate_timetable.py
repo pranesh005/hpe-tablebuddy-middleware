@@ -21,7 +21,7 @@ main_lock = threading.Lock()
 def generate(prev_gen=None, ishighschool=False):
     subs = higher_std_subs if ishighschool else lower_std_subs
     extra = higher_std_extra if ishighschool else lower_std_extra
-    timetable = [["" for i in range(6)] for j in range(5)]
+    timetable = [["maths" for i in range(6)] for j in range(5)]
     for i in range(5):
         dup = [0] * 6
         for j in range(6):

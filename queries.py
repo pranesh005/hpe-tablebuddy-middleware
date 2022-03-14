@@ -56,3 +56,13 @@ def deleteTimeTableQuery():
             message 
         }
     }"""
+
+def getTeacherTimeTableQuery(std:str,subject:str):
+    return """query TeacherTable{
+  getTeacherTimeTable(std:"""+std+""",subject:"""+subject+"""){
+    errors
+    success
+    timetable
+  }
+}
+"""
